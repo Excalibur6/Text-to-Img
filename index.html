@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignDecode - UML Diagram Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4db5ff;
+            --secondary-color: #ff6b6b;
+            --text-color: #ffffff;
+            --bg-color: #1a1a2e;
+            --card-bg: #2a2a3e;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+        .navbar {
+            background-color: rgba(26, 26, 46, 0.8);
+            transition: background-color 0.3s ease;
+            padding: 1rem 0;
+        }
+        .navbar.scrolled {
+            background-color: var(--bg-color);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            margin-right: 10px;
+            max-height: 40px;
+        }
+        .navbar-light .navbar-nav .nav-link {
+            color: var(--text-color);
+        }
+        .navbar-light .navbar-nav .nav-link:hover {
+            color: var(--primary-color);
+        }
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(26, 26, 46, 0.7), rgba(26, 26, 46, 0.7)), url('images\\tumla.jpeg') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+        }
+        .hero-content {
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-primary:hover {
+            background-color: #3a9eee;
+            border-color: #3a9eee;
+        }
+        .section {
+            padding: 4rem 0;
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+        }
+        #chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--card-bg);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #chatbot-header {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #chatbot-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: var(--bg-color);
+        }
+        #chatbot-input {
+            display: flex;
+            padding: 10px;
+            background-color: var(--card-bg);
+        }
+        #chatbot-input input {
+            flex-grow: 1;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 5px 15px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        .chatbot-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            max-width: 80%;
+        }
+        .chatbot-message.user {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .chatbot-message.bot {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            align-self: flex-start;
+            border: 1px solid #ddd;
+        }
+        #chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            background-color: var(--primary-color);
+            border: none;
+        }
+        #chatbot-toggle:hover {
+            background-color: #3a9eee;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="images\tumlaalogo.png" alt="DesignDecode Logo" width="40" height="40">
+                DesignDecode
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#generator">Generator</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1 class="mb-4">Decode Your Designs with Ease</h1>
+            <p class="lead mb-5">Transform your ideas into professional UML diagrams instantly</p>
+            <a href="#generator" class="btn btn-primary btn-lg">Try It Now</a>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <div class="container">
+            <h2 class="section-title">Powerful Features</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 text-center p-4">
+                        <div class="feature-icon mb-3">📝</div>
+                        <h3>Prompt-based Generation</h3>
+                        <p>Create UML diagrams from simple text prompts</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 text-center p-4">
+                        <div class="feature-icon mb-3">📄</div>
+                        <h3>SRS File Support</h3>
+                        <p>Upload SRS files to generate comprehensive diagrams</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 text-center p-4">
+                        <div class="feature-icon mb-3">🔄</div>
+                        <h3>Multiple Diagram Types</h3>
+                        <p>Generate various UML diagram types as needed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="section">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card h-100 text-center p-4">
+                        <h4>1. Input Requirements</h4>
+                        <p>Enter a text prompt or upload an SRS file</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 text-center p-4">
+                        <h4>2. Choose Diagram Type</h4>
+                        <p>Select the UML diagram type you need</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 text-center p-4">
+                        <h4>3. Generate</h4>
+                        <p>Our AI processes your input and creates the diagram</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 text-center p-4">
+                        <h4>4. Download or Share</h4>
+                        <p>Get your diagram in various formats or share directly</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="generator" class="section">
+        <div class="container">
+            <h2 class="section-title">UML Diagram Generator</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card p-4">
+                        <form id="generatorForm">
+                            <div class="mb-3">
+                                <label for="inputType" class="form-label">Input Type</label>
+                                <select class="form-select" id="inputType">
+                                    <option value="prompt">Text Prompt</option>
+                                    <option value="srs">SRS File</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="promptInput">
+                                <label for="prompt" class="form-label">Enter your prompt</label>
+                                <textarea class="form-control" id="prompt" rows="4" placeholder="Describe your system or use case here..."></textarea>
+                            </div>
+                            <div class="mb-3 d-none" id="fileInput">
+                                <label for="srsFile" class="form-label">Upload SRS File</label>
+                                <input class="form-control" type="file" id="srsFile" accept=".txt,.pdf,.doc,.docx">
+                            </div>
+                            <div class="mb-3">
+                                <label for="diagramType" class="form-label">Diagram Type</label>
+                                <select class="form-select" id="diagramType">
+                                    <option value="class">Class Diagram</option>
+                                    <option value="sequence">Sequence Diagram</option>
+                                    <option value="usecase">Use Case Diagram</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Generate Diagram</button>
+                        </form>
+                    </div>
+                    <div id="generatorResult" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section">
+        <div class="container text-center">
+            <h2 class="section-title">Contact Us</h2>
+            <p class="mb-4">Have questions or feedback? Reach out to us!</p>
+            <a href="mailto:contact@designdecode.com" class="btn btn-primary btn-lg">Email Us</a>
+        </div>
+    </section>
+
+    <footer class="bg-dark text-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>DesignDecode</h5>
+                    <p>Transform your ideas into professional UML diagrams instantly.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#home" class="text-light">Home</a></li>
+                        <li><a href="#features" class="text-light">Features</a></li>
+                        <li><a href="#how-it-works" class="text-light">How It Works</a></li>
+                        <li><a href="#generator" class="text-light">Generator</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Connect</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">Twitter</a></li>
+                        <li><a href="#" class="text-light">LinkedIn</a></li>
+                        <li><a href="#" class="text-light">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="mt-4 mb-3">
+            <p class="text-center mb-0">&copy; 2023 DesignDecode. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <button id="chatbot-toggle" class="btn btn-primary">
+        <i class="bi bi-chat-dots-fill"></i>
+    </button>
+
+    <div id="chatbot-container">
+        <div id="chatbot-header">
+            <span>Chat with Us</span>
+            <button id="chatbot-close" class="btn btn-sm btn-light">×</button>
+        </div>
+        <div id="chatbot-messages"></div>
+        <div id="chatbot-input">
+            <input type="text" id="chatbot-input-field" placeholder="Type your question...">
+            <button id="chatbot-send" class="btn btn-primary">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 50) {
+            document.querySelector('.navbar').classList.add('scrolled');
+        } else {
+            document.querySelector('.navbar').classList.remove('scrolled');
+        }
+    });
+
+    // Generator form functionality
+    const inputType = document.getElementById('inputType');
+    const promptInput = document.getElementById('promptInput');
+    const fileInput = document.getElementById('fileInput');
+
+    inputType.addEventListener('change', function() {
+        if (this.value === 'prompt') {
+            promptInput.classList.remove('d-none');
+            fileInput.classList.add('d-none');
+        } else {
+            promptInput.classList.add('d-none');
+            fileInput.classList.remove('d-none');
+        }
+    });
+
+    document.getElementById('generatorForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const diagramType = document.getElementById('diagramType').value;
+        let input;
+        let inputTypeValue = inputType.value;
+
+        if (inputTypeValue === 'prompt') {
+            input = document.getElementById('prompt').value;
+        } else {
+            const file = document.getElementById('srsFile').files[0];
+            input = file ? file.name : 'No file selected';
+        }
+
+        // Here you would typically send the form data to your backend
+        // For now, we'll just show a placeholder message
+        document.getElementById('generatorResult').innerHTML = `
+            <div class="alert alert-success">
+                UML diagram generation initiated!<br>
+                Input Type: ${inputTypeValue}<br>
+                Input: ${input}<br>
+                Diagram Type: ${diagramType}
+            </div>
+        `;
+    });
+
+    // Chatbot functionality
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbotContainer = document.getElementById('chatbot-container');
+    const chatbotClose = document.getElementById('chatbot-close');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+    const chatbotInputField = document.getElementById('chatbot-input-field');
+    const chatbotSend = document.getElementById('chatbot-send');
+
+    chatbotToggle.addEventListener('click', () => {
+        chatbotContainer.style.display = 'flex';
+        chatbotToggle.style.display = 'none';
+    });
+
+    chatbotClose.addEventListener('click', () => {
+        chatbotContainer.style.display = 'none';
+        chatbotToggle.style.display = 'flex';
+    });
+
+    function addMessage(message, isUser = false) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chatbot-message');
+        messageElement.classList.add(isUser ? 'user' : 'bot');
+        messageElement.textContent = message;
+        chatbotMessages.appendChild(messageElement);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function handleUserInput() {
+        const userMessage = chatbotInputField.value.trim();
+        if (userMessage) {
+            addMessage(userMessage, true);
+            chatbotInputField.value = '';
+
+            // Simple bot response logic (replace with more sophisticated AI in a real application)
+            let botResponse;
+            if (userMessage.toLowerCase().includes('hello') || userMessage.toLowerCase().includes('hi')) {
+                botResponse = "Hello! How can I help you with UML diagram generation today?";
+            } else if (userMessage.toLowerCase().includes('uml')) {
+                botResponse = "DesignDecode can create various types of UML diagrams, including class, sequence, and use case diagrams. What specific type are you interested in?";
+            } else if (userMessage.toLowerCase().includes('price') || userMessage.toLowerCase().includes('cost')) {
+                botResponse = "We offer flexible pricing options. For detailed pricing information, please contact our sales team at sales@designdecode.com.";
+            } else {
+                botResponse = "I'm sorry, I didn't quite understand that. Could you please rephrase your question or ask about UML diagram generation?";
+            }
+
+            setTimeout(() => addMessage(botResponse), 500);
+        }
+    }
+
+    chatbotSend.addEventListener('click', handleUserInput);
+    chatbotInputField.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleUserInput();
+        }
+    });
+
+    // Initial bot message
+    addMessage("Hello! How can I assist you with UML diagram generation using DesignDecode today?");
+</script>
+</body>
+</html>
